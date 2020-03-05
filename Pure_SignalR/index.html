@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>尬廣</title>
+</head>
+<body>
+    <h3>尬廣</h3>
+    <label>
+        <span>名稱：</span>
+        <input type="text" id="name" autocomplete='off' placeholder="輸入名稱" value="測試人員" />
+    </label>
+    <label>
+        <span>訊息：</span>
+        <input type="text" id="message" autocomplete='off' placeholder="輸入訊息" />
+    </label>
+    <button id="btn_send">傳送</button>
+    <div id="box" style="border: solid 1px rgba(0,0,0,0.2); margin:1rem 0;"></div>
+
+    <script src="Scripts/jquery-1.6.4.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="signalr/hubs"></script>
+
+    <script>
+        $(function () {
+            // 游標停留在訊息
+            $('#message').focus();
+            // 開始連線到 Hub
+            $.connection.hub.start().done(function () {
+                $('#btn_send').click(function () {
+                    var name = $('#name').val();
+                    var message = $('#message').val();
+                     // 呼叫 Hub 中的 Send 方法進行廣播
+                    chat.server.send(name, message);
+                    // 清空訊息
+                    $('#message').val('').focus();
+                });
+            });
+            // 建立接收 "messaging" hub 名稱的資料
+            var chat = $.connection.messaging;
+            // 專門接收後端呼叫 broadcastMessage 方法
+            chat.client.broadcastMessage = function (name, message) {
+                // 將廣播資訊印到框裡
+                $('#box').append(`<div><strong>${name}</strong>：${message}</div>`)
+            };
+        });      
+
+    </script>
+</body>
+</html>
